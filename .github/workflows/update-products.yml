@@ -1,0 +1,29 @@
+name: Update Products
+
+on:
+  repository_dispatch:
+    types: [update-products]
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Update products.js
+        run: |
+          echo "${{ github.event.client_payload.products_js }}" > js/products.js
+
+      - name: Save image (if any)
+        if: ${{ github.event.client_payload.image_base64 != '' }}
+        run: |
+          echo "${{ github.event.client_payload.image_base64 }}" | base64 -d > images/${{ github.event.client_payload.image_name }}
+
+      - name: Commit & Push
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add js/products.js images/
+          git commit -m "Update products via admin panel"
+          git push

@@ -421,3 +421,8 @@ body {
     justify-content: space-between;
     flex-grow: 1;
 }
+
+.category-list li.active a {
+    background-color: #55643b88;
+    color: white;
+}
