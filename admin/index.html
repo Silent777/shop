@@ -1,20 +1,18 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Адмінка</title>
-  <link rel="stylesheet" href="admin.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Адмінка</h1>
+  <h1>Додати товар</h1>
   <form id="productForm">
-    <input type="text" id="name" placeholder="Назва товару" required />
-    <input type="number" id="price" placeholder="Ціна" required />
-    <input type="file" id="image" />
-    <button type="submit">Додати товар</button>
+    <input type="text" id="name" placeholder="Назва" required>
+    <input type="number" id="price" placeholder="Ціна" required>
+    <input type="file" id="image" accept="image/*" required>
+    <button type="submit">Додати</button>
   </form>
-
-  <pre id="log"></pre>
   <script src="admin.js"></script>
 </body>
 </html>

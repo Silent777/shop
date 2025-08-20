@@ -1,44 +1,34 @@
-const repo = "Silent777/shop";
-const productsFile = "js/products.js";
-
-document.getElementById("productForm").addEventListener("submit", async (e) => {
+document.getElementById('productForm').addEventListener('submit', async (e) => {
   e.preventDefault();
 
-  const name = document.getElementById("name").value;
-  const price = document.getElementById("price").value;
-  const imageFile = document.getElementById("image").files[0];
+  const name = document.getElementById('name').value;
+  const price = parseFloat(document.getElementById('price').value);
+  const imageFile = document.getElementById('image').files[0];
 
-  let imageName = "";
-  let imageBase64 = "";
-  if (imageFile) {
-    imageName = imageFile.name;
-    const buf = await imageFile.arrayBuffer();
-    imageBase64 = btoa(String.fromCharCode(...new Uint8Array(buf)));
-  }
+  const reader = new FileReader();
+  reader.onloadend = async () => {
+    const base64Image = reader.result.split(',')[1];
 
-  const productsResp = await fetch(`../${productsFile}`);
-  const productsText = await productsResp.text();
-  let products = eval(productsText.replace("const products =", "").replace("export default products;", ""));
-  products.push({ name, price, image: imageName });
+    // Надсилаємо запит до GitHub Actions через repository_dispatch
+    await fetch('https://api.github.com/repos/USERNAME/REPO/dispatches', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/vnd.github+json',
+        'Authorization': 'Bearer ' + process.env.GH_TOKEN,
+      },
+      body: JSON.stringify({
+        event_type: 'update_products',
+        client_payload: {
+          name,
+          price,
+          imageName: imageFile.name,
+          imageData: base64Image
+        }
+      })
+    });
 
-  const payload = {
-    event_type: "update-products",
-    client_payload: {
-      products_js: `const products = ${JSON.stringify(products, null, 2)};\nexport default products;`,
-      image_base64: imageBase64,
-      image_name: imageName
-    }
+    alert("Запит відправлено! Зачекай пару секунд оновлення.");
   };
 
-  const res = await fetch(`https://api.github.com/repos/${repo}/dispatches`, {
-    method: "POST",
-    headers: {
-      "Accept": "application/vnd.github+json",
-      "Authorization": `Bearer ${GITHUB_TOKEN}`,
-      "X-GitHub-Api-Version": "2022-11-28"
-    },
-    body: JSON.stringify(payload)
-  });
-
-  document.getElementById("log").innerText = res.ok ? "Оновлено!" : "Помилка";
+  reader.readAsDataURL(imageFile);
 });

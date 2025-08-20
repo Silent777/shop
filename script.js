@@ -1,4 +1,4 @@
-import { PRODUCTS } from "./js/products.js";
+import { PRODUCTS } from "./products.js";
 
 const productsContainer = document.querySelector(".product-grid");
 const categoryList = document.getElementById("category-list");
