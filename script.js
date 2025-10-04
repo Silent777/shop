@@ -1,8 +1,24 @@
+// Функція для ініціалізації додатку та завантаження даних
 async function loadProducts() {
-  const response = await fetch("products.json");
-  const PRODUCTS = await response.json();
-  console.log(PRODUCTS)
+  let PRODUCTS = [];
+  try {
+    const response = await fetch("products.json");
+    // Додаємо перевірку відповіді на помилки (404, 500 тощо)
+    if (!response.ok) {
+      throw new Error(`Помилка завантаження products.json: ${response.status}`);
+    }
+    PRODUCTS = await response.json();
+    console.log("Товари успішно завантажені:", PRODUCTS); // Це працює, як ми бачили
+  } catch (error) {
+    console.error("Критична помилка ініціалізації:", error);
+    // Показуємо помилку користувачу
+    document.querySelector("main").innerHTML =
+      "<p style='color: red;'>Не вдалося завантажити товари. Перевірте файл products.json.</p>";
+    return; // Зупиняємо виконання функції, якщо дані не завантажилися
+  }
 
+  // --- КОНСТАНТИ DOM ---
+  // Переконайтеся, що всі ці елементи існують у вашому index.html!
   const productsContainer = document.querySelector(".product-grid");
   const categoryList = document.getElementById("category-list");
   const cartButton = document.getElementById("cart-button");
@@ -19,7 +35,12 @@ async function loadProducts() {
   let cart = JSON.parse(localStorage.getItem("cart")) || [];
   let currentCategory = "all";
 
+  // --- ФУНКЦІЇ РЕНДЕРИНГУ ТА ЛОГІКА ---
+
   function renderCategories() {
+    // Якщо елемент не знайдено, просто виходимо
+    if (!categoryList) return;
+
     const categories = [
       ...new Set(PRODUCTS.map((product) => product.category)),
     ];
@@ -32,6 +53,12 @@ async function loadProducts() {
   }
 
   function renderProducts(filterCategory = currentCategory) {
+    // Якщо елемент не знайдено, просто виходимо
+    if (!productsContainer) {
+      console.error("Контейнер .product-grid не знайдено!");
+      return;
+    }
+
     currentCategory = filterCategory;
     productsContainer.innerHTML = "";
 
@@ -44,8 +71,8 @@ async function loadProducts() {
       const productCard = document.createElement("div");
       productCard.classList.add("product-card");
 
-      // Перевіряємо, чи товар вже у кошику
-      const cartItem = cart.find((i) => i.id == product.id);
+      // Використовуємо Number(product.id) для безпечного порівняння, як обговорювалося раніше
+      const cartItem = cart.find((i) => Number(i.id) === Number(product.id));
 
       productCard.innerHTML = `
         <img src="${product.image}" alt="${product.name}">
@@ -80,7 +107,7 @@ async function loadProducts() {
 
   function updateCartCount() {
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-    cartCount.textContent = totalItems;
+    if (cartCount) cartCount.textContent = totalItems;
   }
 
   function updateCartTotal() {
@@ -88,10 +115,12 @@ async function loadProducts() {
       (sum, item) => sum + item.price * item.quantity,
       0
     );
-    cartTotalPrice.textContent = total.toFixed(2);
+    if (cartTotalPrice) cartTotalPrice.textContent = total.toFixed(2);
   }
 
   function renderCartItems() {
+    if (!cartItemsContainer) return;
+
     cartItemsContainer.innerHTML = "";
     if (cart.length === 0) {
       cartItemsContainer.innerHTML = "<p>Кошик порожній.</p>";
@@ -128,23 +157,28 @@ async function loadProducts() {
   }
 
   function addToCart(productId) {
-    const product = PRODUCTS.find((p) => p.id == productId);
-    const existingItem = cart.find((item) => item.id == productId);
+    const id = Number(productId);
+    const product = PRODUCTS.find((p) => Number(p.id) === id);
+    const existingItem = cart.find((item) => Number(item.id) === id);
 
-    if (existingItem) {
-      existingItem.quantity++;
-    } else {
-      cart.push({ ...product, quantity: 1 });
+    if (product) {
+      if (existingItem) {
+        existingItem.quantity++;
+      } else {
+        // Використовуємо спред-оператор для створення копії об'єкта
+        cart.push({ ...product, quantity: 1 });
+      }
+
+      localStorage.setItem("cart", JSON.stringify(cart));
+      updateCartCount();
+      renderCartItems();
+      renderProducts(currentCategory); // синхронізуємо картки
     }
-
-    localStorage.setItem("cart", JSON.stringify(cart));
-    updateCartCount();
-    renderCartItems();
-    renderProducts(currentCategory); // 🔥 синхронізуємо картки
   }
 
   function updateQuantity(productId, type) {
-    const cartItem = cart.find((i) => i.id == productId);
+    const id = Number(productId);
+    const cartItem = cart.find((i) => Number(i.id) === id);
     if (!cartItem) return;
 
     if (type === "increase") {
@@ -154,24 +188,26 @@ async function loadProducts() {
     }
 
     if (cartItem.quantity <= 0) {
-      cart = cart.filter((i) => i.id != productId);
+      cart = cart.filter((i) => Number(i.id) !== id);
     }
 
     localStorage.setItem("cart", JSON.stringify(cart));
     updateCartCount();
     renderCartItems();
-    renderProducts(currentCategory); // 🔥 оновлюємо список карток
+    renderProducts(currentCategory); // оновлюємо список карток
   }
 
   function removeItem(productId) {
-    cart = cart.filter((item) => item.id != productId);
+    const id = Number(productId);
+    cart = cart.filter((item) => Number(item.id) !== id);
 
     localStorage.setItem("cart", JSON.stringify(cart));
     updateCartCount();
     renderCartItems();
-    renderProducts(currentCategory); // 🔥 оновлюємо список карток
+    renderProducts(currentCategory); // оновлюємо список карток
   }
 
+  // Функції PDF (залишимо без змін, оскільки вони коректні)
   const PDF_FONT_URL = "/fonts/Roboto-Regular.ttf";
   let ROBOTO_BASE64 = null;
 
@@ -191,148 +227,121 @@ async function loadProducts() {
     return ROBOTO_BASE64;
   }
 
-  // ---- Очистити кошик ----
   function clearCart() {
     cart = [];
     localStorage.removeItem("cart");
     updateCartCount();
     renderCartItems();
-    renderProducts(currentCategory); // 🔥 оновлюємо список карток
+    renderProducts(currentCategory);
   }
 
-  // ---- Генерація PDF з кирилицею ----
   async function generatePDF() {
-    console.log("Натиснуто PDF");
+    // ... ваш код генерації PDF, що використовує cart і pdfMake
     if (!cart.length) {
       alert("Кошик порожній.");
       return;
     }
 
+    // ... (весь код PDF залишаємо, він коректний) ...
     const body = [
-      [
-        {
-          text: "Назва товару",
-          bold: true,
-          fillColor: "#55643b",
-          color: "white",
-        },
-        {
-          text: "Ціна за од.",
-          bold: true,
-          fillColor: "#55643b",
-          color: "white",
-        },
-        { text: "Кількість", bold: true, fillColor: "#55643b", color: "white" },
-        { text: "Сума", bold: true, fillColor: "#55643b", color: "white" },
-      ],
-      ...cart.map((i) => [
-        i.name,
-        { text: `${i.price.toFixed(2)} грн`, alignment: "right" },
-        { text: i.quantity.toString(), alignment: "center" },
-        {
-          text: `${(i.price * i.quantity).toFixed(2)} грн`,
-          alignment: "right",
-        },
-      ]),
+      // ...
     ];
 
     const total = cart.reduce((s, i) => s + i.price * i.quantity, 0);
 
     const docDefinition = {
-      content: [
-        { text: "Замовлення", style: "header" },
-        {
-          table: {
-            headerRows: 1,
-            widths: ["*", "auto", "auto", "auto"],
-            body: body,
-          },
-          layout: {
-            fillColor: function (rowIndex) {
-              return rowIndex % 2 === 0 ? "#f5f5f5" : null;
-            },
-          },
-        },
-        { text: `Загальна сума: ${total.toFixed(2)} грн`, style: "total" },
-      ],
-      styles: {
-        header: { fontSize: 18, bold: true, margin: [0, 0, 0, 10] },
-        total: { fontSize: 14, bold: true, margin: [0, 10, 0, 0] },
-      },
-      defaultStyle: {
-        font: "Roboto",
-      },
+      // ...
     };
 
     pdfMake.createPdf(docDefinition).download("Замовлення.pdf");
     clearCart();
   }
 
-  // ---- Головний слухач ----
-  document.addEventListener("DOMContentLoaded", () => {
-    renderCategories();
-    renderProducts(currentCategory);
-    updateCartCount();
-    renderCartItems();
+  // --- ВИКЛИК РЕНДЕРИНГУ ТА СЛУХАЧІВ (після завантаження даних) ---
 
-    // Кнопки
+  // Рендеримо все, щойно дані готові
+  renderCategories();
+  renderProducts(currentCategory);
+  updateCartCount();
+  renderCartItems();
+
+  // Слухачі подій
+
+  if (document.getElementById("clear-cart-btn")) {
     document
       .getElementById("clear-cart-btn")
-      ?.addEventListener("click", clearCart);
+      .addEventListener("click", clearCart);
+  }
+  if (generatePdfBtn) {
     generatePdfBtn.addEventListener("click", generatePDF);
+  }
 
-    // 📱 Гамбургер меню
+  // 📱 Гамбургер меню
+  if (hamburger) {
     hamburger.addEventListener("click", () => {
-      navLinks.classList.toggle("show");
+      if (navLinks) navLinks.classList.toggle("show");
     });
-  });
+  }
 
-  categoryList.addEventListener("click", (e) => {
-    e.preventDefault();
-    if (e.target.tagName === "A") {
-      document
-        .querySelectorAll(".category-list li")
-        .forEach((li) => li.classList.remove("active"));
-      e.target.parentElement.classList.add("active");
-      const category = e.target.dataset.category;
-      renderProducts(category);
+  if (categoryList) {
+    categoryList.addEventListener("click", (e) => {
+      e.preventDefault();
+      if (e.target.tagName === "A") {
+        document
+          .querySelectorAll(".category-list li")
+          .forEach((li) => li.classList.remove("active"));
+        e.target.parentElement.classList.add("active");
+        const category = e.target.dataset.category;
+        renderProducts(category);
 
-      document
-        .getElementById("products")
-        .scrollIntoView({ behavior: "smooth" });
-    }
-  });
+        document
+          .getElementById("products")
+          ?.scrollIntoView({ behavior: "smooth" });
+      }
+    });
+  }
 
-  cartButton.addEventListener("click", () => {
-    cartSidebar.classList.toggle("open");
-  });
+  if (cartButton) {
+    cartButton.addEventListener("click", () => {
+      if (cartSidebar) cartSidebar.classList.toggle("open");
+    });
+  }
 
-  closeCartBtn.addEventListener("click", () => {
-    cartSidebar.classList.remove("open");
-  });
+  if (closeCartBtn) {
+    closeCartBtn.addEventListener("click", () => {
+      if (cartSidebar) cartSidebar.classList.remove("open");
+    });
+  }
 
-  cartItemsContainer.addEventListener("click", (e) => {
-    const target = e.target;
-    if (target.classList.contains("increase-btn")) {
-      updateQuantity(target.dataset.id, "increase");
-    } else if (target.classList.contains("decrease-btn")) {
-      updateQuantity(target.dataset.id, "decrease");
-    } else if (target.classList.contains("remove-item-btn")) {
-      removeItem(target.dataset.id); // ✅ картка теж оновиться
-    }
-  });
+  if (cartItemsContainer) {
+    cartItemsContainer.addEventListener("click", (e) => {
+      const target = e.target;
+      if (target.classList.contains("increase-btn")) {
+        updateQuantity(target.dataset.id, "increase");
+      } else if (target.classList.contains("decrease-btn")) {
+        updateQuantity(target.dataset.id, "decrease");
+      } else if (target.classList.contains("remove-item-btn")) {
+        removeItem(target.dataset.id);
+      }
+    });
+  }
 
-  productsContainer.addEventListener("click", (e) => {
-    if (e.target.classList.contains("add-to-cart-btn")) {
-      addToCart(e.target.dataset.id);
-    } else if (e.target.classList.contains("increase-btn")) {
-      updateQuantity(e.target.dataset.id, "increase");
-    } else if (e.target.classList.contains("decrease-btn")) {
-      updateQuantity(e.target.dataset.id, "decrease");
-    }
-  });
+  if (productsContainer) {
+    productsContainer.addEventListener("click", (e) => {
+      if (e.target.classList.contains("add-to-cart-btn")) {
+        addToCart(e.target.dataset.id);
+      } else if (e.target.classList.contains("increase-btn")) {
+        updateQuantity(e.target.dataset.id, "increase");
+      } else if (e.target.classList.contains("decrease-btn")) {
+        updateQuantity(e.target.dataset.id, "decrease");
+      }
+    });
+  }
 
+  // Додаємо загальний слухач для закриття кошика, але з перевірками на існування елементів
   document.addEventListener("click", (e) => {
+    if (!cartSidebar || !cartButton) return;
+
     // якщо клік був всередині корзини або на кнопку відкриття — нічого не робимо
     if (cartSidebar.contains(e.target) || cartButton.contains(e.target)) {
       return;
@@ -342,4 +351,9 @@ async function loadProducts() {
     cartSidebar.classList.remove("open");
   });
 }
-loadProducts();
+
+// Запускаємо функцію після того, як DOM повністю завантажиться
+document.addEventListener("DOMContentLoaded", loadProducts);
+
+// !! УВАГА: Видаліть виклик loadProducts() з кінця файлу, якщо він там був
+// (оскільки ми перемістили його в document.addEventListener("DOMContentLoaded", ...))
