@@ -1,8 +1,9 @@
 backend:
-  # Використовуємо Netlify Git Gateway для аутентифікації
-  name: git-gateway 
-  # !!! ПЕРЕВІРТЕ: Замініть 'main' на назву вашої основної гілки, якщо вона інша (наприклад, 'master')
-  branch: main 
+  name: git-gateway
+  branch: main
+  identity_url: "https://dev-g6feglvxbjuo57p0.auth0.com"
+  auth_type: implicit
+  app_id: bQXWN1Csmgi74PihzDJ6oS8ep5BWGrg7
 
 # Налаштування для завантаження зображень
 media_folder: "images" # Де зберігати завантажені зображення у репозиторії
