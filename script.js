@@ -1,5 +1,9 @@
 // Функція для ініціалізації додатку та завантаження даних
 async function loadProducts() {
+  if (window.location.pathname.includes("/admin/")) {
+    console.log("Завантаження script.js проігноровано на сторінці адмінки.");
+    return;
+  }
   let PRODUCTS = [];
   try {
     const response = await fetch("products.json");
