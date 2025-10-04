@@ -6,13 +6,8 @@
     <title>Адмінка | Управління Продуктами</title>
   </head>
   <body>
-    <!-- Контейнер для CMS -->
     <div id="nc-root"></div>
-
-    <!-- Спочатку додаємо CMS -->
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
-
-    <!-- Якщо використовуєш Netlify Identity -->
     <script>
       if (window.netlifyIdentity) {
         window.netlifyIdentity.on("init", user => {

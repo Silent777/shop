@@ -1,58 +1,23 @@
-<!DOCTYPE html>
-<html lang="uk">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Marketplace</title>
-  <link rel="stylesheet" href="styles.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.14/jspdf.plugin.autotable.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/pdfmake.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
-</head>
-
-<body>
-
-  <header class="header">
-
-    <nav class="main-nav">
-      <button class="hamburger" id="hamburger">☰</button>
-      <ul class="nav-links" id="nav-links">
-        <li><a href="#products">Товари</a></li>
-        <li><a href="#about">Про нас</a></li>
-        <li><a href="#contact">Контакти</a></li>
-      </ul>
-    </nav>
-    <h1 class="logo">Андрій Барига</h1>
-    <div class="cart-container">
-      <button id="cart-button" class="cart-button">
-        <span class="cart-icon">🛒</span>
-        <span id="cart-count" class="cart-count">0</span>
-      </button>
-    </div>
-  </header>
-
-  <div id="cart-sidebar" class="cart-sidebar">
-    <button id="close-cart-btn" class="close-btn">&times;</button>
-    <h2>Кошик</h2>
-    <div id="cart-items" class="cart-items"></div>
-    <div class="cart-summary">
-      <p>Загальна сума: <span id="cart-total-price">0.00</span> грн</p>
-      <button id="clear-cart-btn" class="clear-cart-btn">Очистити кошик</button>
-      <button id="generate-pdf-btn" class="generate-pdf-btn">Згенерувати PDF</button>
-    </div>
-  </div>
-
-  <main class="main-content">
-    <aside class="sidebar-categories">
-      <h3>Категорії</h3>
-      <ul id="category-list" class="category-list"></ul>
-    </aside>
-
-    <section id="products" class="product-grid"></section>
-  </main>
-  <script type="module" src="script.js"></script>
-</body>
-
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Адмінка | Управління Продуктами</title>
+  </head>
+  <body>
+    <div id="nc-root"></div>
+    <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+    <script>
+      if (window.netlifyIdentity) {
+        window.netlifyIdentity.on("init", user => {
+          if (!user) {
+            window.netlifyIdentity.on("login", () => {
+              document.location.href = "/admin/";
+            });
+          }
+        });
+      }
+    </script>
+  </body>
 </html>
