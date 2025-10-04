@@ -1,0 +1,31 @@
+backend:
+  # Замініть `main` на назву вашої основної гілки (наприклад, `master` або `main`)
+  name: git-gateway 
+  branch: main 
+
+local_backend: true # Дозволяє тестування на локальному комп'ютері
+
+media_folder: "images" # Де зберігати завантажені зображення
+public_folder: "/images" # Шлях до зображень відносно кореня сайту
+
+collections:
+  - name: "products_collection"
+    label: "Управління Продуктами"
+    
+    # Редагування одного JSON-файлу, що містить масив товарів
+    files:
+      - file: "products.json" 
+        label: "Список Товарів"
+        name: "products_list_file"
+        # Головне поле - список (масив), який буде редагуватися
+        fields:
+          - label: "Товари"
+            name: "items"
+            widget: "list" # Вказує, що це масив
+            # Поля для кожного елемента (товару) у списку:
+            fields:
+              - { label: "ID", name: "id", widget: "number", valueType: "int", required: true }
+              - { label: "Назва", name: "name", widget: "string", required: true }
+              - { label: "Ціна", name: "price", widget: "number", valueType: "float", required: true }
+              - { label: "Категорія", name: "category", widget: "string", required: true }
+              - { label: "Зображення", name: "image", widget: "image", required: true }

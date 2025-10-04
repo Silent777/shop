@@ -1,19 +1,21 @@
-<!DOCTYPE html>
-<html lang="uk">
+<!doctype html>
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Адмінка</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <title>Адмінка | Управління Продуктами</title>
+  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
 </head>
 <body>
-  Test
-  <h1>Додати товар</h1>
-  <form id="productForm">
-    <input type="text" id="name" placeholder="Назва" required>
-    <input type="number" id="price" placeholder="Ціна" required>
-    <input type="file" id="image" accept="image/*" required>
-    <button type="submit">Додати</button>
-  </form>
-  <script src="admin.js"></script>
+  <script>
+    if (window.netlifyIdentity) {
+      window.netlifyIdentity.on("init", user => {
+        if (!user) {
+          window.netlifyIdentity.on("login", () => {
+            document.location.href = "/admin/";
+          });
+        }
+      });
+    }
+  </script>
 </body>
 </html>
