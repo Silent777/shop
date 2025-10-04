@@ -5,12 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Адмінка | Управління Продуктами (Auth0)</title>
 
-  <!-- Decap CMS -->
-  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
-
-  <!-- Decap CMS Auth0 backend -->
-  <script src="https://unpkg.com/decap-cms-auth0@^2.0.0/dist/decap-cms-auth0.js"></script>
-
   <style>
     /* Приховуємо адмінку до авторизації */
     #nc-root { display: none; }
@@ -19,20 +13,36 @@
 <body>
   <div id="nc-root"></div>
 
+  <!-- Decap CMS -->
+  <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js" onload="initCMS()"></script>
+
+  <!-- Decap CMS Auth0 backend -->
+  <script src="https://unpkg.com/decap-cms-auth0@^2.0.0/dist/decap-cms-auth0.js"></script>
+
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
+    function initCMS() {
+      // Перевірка, що Decap CMS завантажено
+      if (!window.Decap || !window.Decap.CMS) {
+        console.error('Decap CMS не завантажено');
+        return;
+      }
+
+      if (!window.Decap.CMSAuth0) {
+        console.error('Decap CMS Auth0 backend не завантажено');
+        return;
+      }
 
       // Регіструємо Auth0 backend
       Decap.CMS.registerBackend('auth0', Decap.CMSAuth0);
 
-      // Ініціалізуємо CMS
+      // Ініціалізація CMS
       Decap.CMS.init({
         config: {
           backend: {
             name: 'auth0',
             branch: 'main',
-            base_url: 'https://dev-g6feglvxbjuo57p0.us.auth0.com', // ВАШ ДОМЕН AUTH0
-            app_id: 'bQXWN1Csmgi74PihzDJ6oS8ep5BWGrg7' // ВАШ CLIENT ID AUTH0
+            base_url: 'https://dev-g6feglvxbjuo57p0.us.auth0.com', // Ваш домен Auth0
+            app_id: 'bQXWN1Csmgi74PihzDJ6oS8ep5BWGrg7'               // Ваш Client ID
           },
           media_folder: 'images',
           public_folder: '/images',
@@ -57,13 +67,12 @@
             }
           ]
         },
-        // Показуємо адмінку після ініціалізації
         load_config: function() {
+          // Показуємо адмінку після ініціалізації
           document.getElementById('nc-root').style.display = 'block';
         }
       });
-
-    });
+    }
   </script>
 </body>
 </html>
