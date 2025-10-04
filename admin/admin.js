@@ -1,5 +1,6 @@
 document.getElementById('productForm').addEventListener('submit', async (e) => {
   e.preventDefault();
+  console.log(process.env.GH_TOKEN)
 
   const name = document.getElementById('name').value;
   const price = parseFloat(document.getElementById('price').value);
