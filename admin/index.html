@@ -12,7 +12,6 @@
       window.netlifyIdentity.on("init", user => {
         if (!user) {
           window.netlifyIdentity.on("login", () => {
-            // Перенаправлення назад на адмінку після успішного входу
             document.location.href = "/admin/";
           });
         }
