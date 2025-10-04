@@ -1,7 +1,7 @@
 backend:
   name: auth0
   branch: main
-  base_url: "https://dev-g6feglvxbjuo57p0.auth0.com" # ВАШ ДОМЕН AUTH0
+  base_url: "https://dev-g6feglvxbjuo57p0.us.auth0.com" # ВАШ ДОМЕН AUTH0
   app_id: "bQXWN1Csmgi74PihzDJ6oS8ep5BWGrg7" # ВАШ CLIENT ID AUTH0
 
 # Налаштування для завантаження зображень
