@@ -1,14 +1,14 @@
 backend:
-  name: git-gateway
+  name: auth0
   branch: main
-  identity_url: "https://dev-g6feglvxbjuo57p0.auth0.com"
-  auth_type: implicit
-  app_id: bQXWN1Csmgi74PihzDJ6oS8ep5BWGrg7
+  base_url: "https://dev-g6feglvxbjuo57p0.auth0.com" # ВАШ ДОМЕН AUTH0
+  app_id: "bQXWN1Csmgi74PihzDJ6oS8ep5BWGrg7" # ВАШ CLIENT ID AUTH0
 
 # Налаштування для завантаження зображень
-media_folder: "images" # Де зберігати завантажені зображення у репозиторії
-public_folder: "/images" # Шлях до зображень для публічного доступу
+media_folder: "images"
+public_folder: "/images"
 
+# Налаштування колекцій
 collections:
   - name: "products_collection"
     label: "Управління Продуктами"
