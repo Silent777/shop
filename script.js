@@ -1,7 +1,7 @@
 async function loadProducts() {
   const response = await fetch("products.json");
-  console.log(response)
   const PRODUCTS = await response.json();
+  console.log(PRODUCTS)
 
   const productsContainer = document.querySelector(".product-grid");
   const categoryList = document.getElementById("category-list");
