@@ -1,34 +1,69 @@
 <!doctype html>
-<html>
+<html lang="uk">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Адмінка | Управління Продуктами (Auth0)</title>
-  
+
+  <!-- Decap CMS -->
   <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
-  
-  </head>
+
+  <!-- Decap CMS Auth0 backend -->
+  <script src="https://unpkg.com/decap-cms-auth0@^2.0.0/dist/decap-cms-auth0.js"></script>
+
+  <style>
+    /* Приховуємо адмінку до авторизації */
+    #nc-root { display: none; }
+  </style>
+</head>
 <body>
-  <div id="nc-root"></div> 
-  
+  <div id="nc-root"></div>
+
   <script>
-    // 1. Скрипт-завантажувач для плагіна Auth0
-    // Реєструємо плагін вручну, щоб переконатися, що CMS його бачить.
-    (function () {
-        var script = document.createElement('script');
-        script.onload = function () {
-            // Реєстрація плагіна
-            if (window.CMS && window.CMS.registerBackend) {
-                // Плагін Decap CMS Auth0 знаходиться у глобальній змінній CMS.
-                // Він повинен бути ініціалізований тут.
+    document.addEventListener("DOMContentLoaded", () => {
+
+      // Регіструємо Auth0 backend
+      Decap.CMS.registerBackend('auth0', Decap.CMSAuth0);
+
+      // Ініціалізуємо CMS
+      Decap.CMS.init({
+        config: {
+          backend: {
+            name: 'auth0',
+            branch: 'main',
+            base_url: 'https://dev-g6feglvxbjuo57p0.us.auth0.com', // ВАШ ДОМЕН AUTH0
+            app_id: 'bQXWN1Csmgi74PihzDJ6oS8ep5BWGrg7' // ВАШ CLIENT ID AUTH0
+          },
+          media_folder: 'images',
+          public_folder: '/images',
+          collections: [
+            {
+              name: 'products_collection',
+              label: 'Управління Продуктами',
+              files: [
+                {
+                  file: 'products.json',
+                  label: 'Список Товарів',
+                  name: 'products_list_file',
+                  fields: [
+                    { label: 'ID', name: 'id', widget: 'number', valueType: 'int', required: true, hint: 'Унікальний номер товару' },
+                    { label: 'Назва', name: 'name', widget: 'string', required: true },
+                    { label: 'Ціна', name: 'price', widget: 'number', valueType: 'float', required: true, step: 0.01 },
+                    { label: 'Категорія', name: 'category', widget: 'string', required: true },
+                    { label: 'Зображення', name: 'image', widget: 'image', required: true, allow_multiple: false }
+                  ]
+                }
+              ]
             }
-        };
-        script.src = "https://unpkg.com/decap-cms-auth0@^2.0.0/dist/decap-cms-auth0.js";
-        document.head.appendChild(script);
-    })();
-    
-    // Якщо попередня реєстрація не працює, CMS намагатиметься його знайти за назвою "auth0".
-    
+          ]
+        },
+        // Показуємо адмінку після ініціалізації
+        load_config: function() {
+          document.getElementById('nc-root').style.display = 'block';
+        }
+      });
+
+    });
   </script>
 </body>
 </html>
