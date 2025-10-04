@@ -6,6 +6,31 @@
     <title>Адмінка | Управління Продуктами</title>
   </head>
   <body>
+    <script>
+(function() {
+  // шукаємо токен у різних можливих форматах (хеш / query)
+  const src = window.location.hash + window.location.search + window.location.href;
+  const patterns = [
+    /invite_token=([^&]+)/i,
+    /inviteToken=([^&]+)/i,
+    /#\/invite\/([^\/#?]+)/i,
+    /\/admin\/#\/invite\/([^\/#?]+)/i
+  ];
+  let token = null;
+  for (const p of patterns) {
+    const m = src.match(p);
+    if (m) { token = m[1]; break; }
+  }
+  if (token) {
+    console.log('[Invite redirect] token:', token);
+    // редіректимо в очікуваний Decap формат
+    const target = '/admin/#/invite/' + token;
+    if (window.location.pathname !== '/admin/' || !window.location.hash.includes('/invite/')) {
+      window.location.replace(target);
+    }
+  }
+})();
+</script>
     <div id="nc-root"></div>
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
     <script>
